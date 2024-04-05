@@ -1,6 +1,6 @@
 from discord.ext import commands
-from dotenv import load_dotenv
 import discord
+from dotenv import load_dotenv
 import os
 from random import choice
 
@@ -12,13 +12,12 @@ TOKEN = os.getenv('DISCORD_TOKEN')
 intents = discord.Intents.default()
 intents.message_content = True
 
-#create bot instance with command prefix and intents
-bot = commands.Bot(command_prefix='?', intents=intents)
+#initialize bot with intents
+bot = commands.Bot(command_prefix='/', intents=intents)
 
 #function to get bot response based on user input
 def get_response(user_input: str) -> str:
     lowered = user_input.lower()
-
     if lowered == '':
         return 'Aww, did you lose your voice or are you just feeling shy UwU ?'
     elif 'hello' in lowered:
@@ -33,34 +32,25 @@ def get_response(user_input: str) -> str:
             "Hmmmm, I don't really understand that :(",
             "My creator didn't finish me yet, sorry I can't understand you."
         ])
+#inform users that /ask functionality will be available soon (chatgpt)
+@bot.slash_command(name="ask", description="This functionality will be available soon")
+async def ask(ctx):
+    await ctx.respond("This functionality will be available soon. Stay tuned!")
 
-#command to handle empty messages
-@bot.command()
-async def empty(ctx):
-    await ctx.send('Aww, did you lose your voice or are you just feeling shy UwU ?')
-
-#command to greet the user
-@bot.command()
+#slash command for saying hello
+@bot.slash_command(name="hello", description="Say hello to the bot")
 async def hello(ctx):
-    await ctx.send('Hello, hello! What mischief are we getting into today?')
+    await ctx.respond("Hello, hello! What mischief are we getting into today?")
 
-#command to check how the bot is doing
-@bot.command()
-async def how_are_you(ctx):
-    await ctx.send("Pfft, I'm doing just peachy! Who needs normal when you can have extraordinary, right?")
+#slash command for hru
+@bot.slash_command(name="hru", description="Ask the bot how it's doing")
+async def hru(ctx):
+    await ctx.respond("Pfft, I'm doing just peachy! Who needs normal when you can have extraordinary, right?")
 
-#command for bye-bye
-@bot.command()
+#slash command for bye-bye
+@bot.slash_command(name="bye", description="Say goodbye to the bot")
 async def bye(ctx):
-    await ctx.send("Bye-bye, pookie! Catch you on the flip side!")
+    await ctx.respond("Bye-bye, pookie! Catch you on the flip side!")
 
-#command to handle unknown wela random commands
-@bot.event
-async def on_command_error(ctx, error):
-    if isinstance(error, commands.CommandNotFound):
-        user_input = ctx.message.content[len(bot.command_prefix):]
-        response = get_response(user_input)
-        await ctx.send(response)
-
-# Run the bot
+#run the bot
 bot.run(TOKEN)
