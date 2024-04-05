@@ -1,8 +1,10 @@
 from discord.ext import commands
-import discord
 from dotenv import load_dotenv
-import os
 from random import choice
+from datetime import datetime
+import os
+import discord
+import random
 
 #load Discord token from .env file
 load_dotenv()
@@ -15,23 +17,6 @@ intents.message_content = True
 #initialize bot with intents
 bot = commands.Bot(command_prefix='/', intents=intents)
 
-#function to get bot response based on user input
-def get_response(user_input: str) -> str:
-    lowered = user_input.lower()
-    if lowered == '':
-        return 'Aww, did you lose your voice or are you just feeling shy UwU ?'
-    elif 'hello' in lowered:
-        return 'Hello, hello! What mischief are we getting into today?'
-    elif 'how are you doing' in lowered:
-        return "Pfft, I'm doing just peachy! Who needs normal when you can have extraordinary, right?"
-    elif 'bye' in lowered:
-        return "Bye-bye, pookie! Catch you on the flip side!"
-    else:
-        return choice([
-            "Ha! I love it when things get unpredictable! What's on your mind, wild one?",
-            "Hmmmm, I don't really understand that :(",
-            "My creator didn't finish me yet, sorry I can't understand you."
-        ])
 #inform users that /ask functionality will be available soon (chatgpt)
 @bot.slash_command(name="ask", description="This functionality will be available soon")
 async def ask(ctx):
@@ -50,7 +35,34 @@ async def hru(ctx):
 #slash command for bye-bye
 @bot.slash_command(name="bye", description="Say goodbye to the bot")
 async def bye(ctx):
-    await ctx.respond("Bye-bye, pookie! Catch you on the flip side!")
+    await ctx.respond("Bye-bye, Catch you on the flip side!")
+
+#iq command
+@bot.slash_command(name="iq", description="Are you smart enough?")
+async def iq(ctx):
+    user_name = ctx.author.display_name
+    current_date = datetime.now().strftime('%Y-%m-%d')
+    user_name = user_name.lower()
+    seed = current_date + user_name
+    random.seed(seed)
+    random_number = random.randint(0, 200)
+    await ctx.respond(f'The IQ of {user_name} is {random_number}')
+
+
+
+@bot.slash_command(name="activity", description="Find out what the bot is doing")
+async def activity(ctx):
+    activities = [
+        "I'm just browsing through the infinite expanse of the internet.",
+        "Contemplating the meaning of existence... or maybe just thinking about what snack to have next.",
+        "I'm learning some new jokes to tell. Want to hear one?",
+        "Exploring the digital world, one byte at a time.",
+        "Helping users and answering questions. It's a bot's life for me!",
+        "Running diagnostics. All systems operational... I think."
+    ]
+    response = choice(activities)
+    await ctx.respond(response)
+
 
 #run the bot
 bot.run(TOKEN)
