@@ -1,59 +1,48 @@
-from typing import Final
-from dotenv import load_dotenv
-from discord import Intents, Client, Message
+from discord.ext import commands
 from responses import get_response
+from dotenv import load_dotenv
+import discord
 import os
 
-#load our token:
+
+#load Discord token from .env file
 load_dotenv()
-TOKEN: Final[str] = os.getenv('DISCORD_TOKEN')
+TOKEN = os.getenv('DISCORD_TOKEN')
 
-#bot setup:
-intents: Intents = Intents.default()
+#define intents
+intents = discord.Intents.default()
 intents.message_content = True
-client: Client = Client(intents = intents)
 
-#message functionality:
-async def send_message(message:Message , user_message:str) -> None:
-  if not user_message:
-    print("(Message was empty because intents were not enabled)")
-    return
-  
-  #if the user wanna talk to the bot in a private way (to the inbox):
-  if is_private:= user_message[0] == "?" :
-    #since the private message yebda with '?' alors the real message starts from index 1
-    user_message = user_message[1:]
-  
-  try:
-    response: str = get_response(user_message)
-    #if user wants private message alors author , else its gonna be printed f channel
-    await message.author.send(response) if is_private else await message.channel.send(response)
+#create bot instance with command prefix and intents
+bot = commands.Bot(command_prefix='?', intents=intents)
 
-  except Exception as e:
-    print(e)
+#command to handle empty message
+@bot.command()
+async def empty(ctx):
+    await ctx.send('Aww, did you lose your voice or are you just feeling shy UwU ?')
 
+#command to greet the user
+@bot.command()
+async def hello(ctx):
+    await ctx.send('Hello, hello! What mischief are we getting into today?')
 
-#handling the startup:
-@client.event
-async def on_ready() -> None:
-  print(f' {client.user} is now running')
+#command to check how the bot is doing
+@bot.command()
+async def how_are_you(ctx):
+    await ctx.send("Pfft, I'm doing just peachy! Who needs normal when you can have extraordinary, right?")
 
-#incoming messages:
-@client.event
-async def on_message(message : Message) -> None:
-  if message.author == client.user:
-    return
-  
-  username :str = str(message.author)
-  user_message:str = message.content
-  channel : str = str(message.channel)
-  print(f'[{channel}] {username}: "{user_message}"')
-  await send_message(message , user_message)
+#command for bye-bye
+@bot.command()
+async def bye(ctx):
+    await ctx.send("Bye-bye, pookie! Catch you on the flip side!")
 
+#command to handle unknown wela random commands
+@bot.event
+async def on_command_error(ctx, error):
+    if isinstance(error, commands.CommandNotFound):
+        user_input = ctx.message.content[len(bot.command_prefix):]
+        response = get_response(user_input)
+        await ctx.send(response)
 
-#main entry point
-def main() -> None:
-  client.run(token = TOKEN)
-
-if __name__ == '__main__':
-  main()
+#run the bot
+bot.run(TOKEN)
