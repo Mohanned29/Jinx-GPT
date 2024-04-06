@@ -2,10 +2,11 @@ from discord.ext import commands
 from dotenv import load_dotenv
 from random import choice
 from datetime import datetime
+from bs4 import BeautifulSoup
 import os
 import discord
 import random
-import openai
+import requests
 
 #load Discord token from .env file
 load_dotenv()
@@ -20,22 +21,50 @@ intents.message_content = True
 #initialize bot with intents
 bot = commands.Bot(command_prefix='/', intents=intents)
 
-#inform users that /ask functionality will be available soon (chatgpt)
-@bot.slash_command(name="ask", description="Ask a question and get an answer from Jinx")
+#ask command alpha
+@bot.slash_command(name="ask", description="Ask a question and get an answer from Wikipedia")
 async def ask(ctx, *, question: str):
     try:
-        openai.api_key = OPENAI_API_KEY
-        response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {"role": "system", "content": "You are a helpful assistant."},
-                {"role": "user", "content": question},
-            ]
-        )
-        await ctx.respond(response.choices[0].message['content'])
+        #construct the URL to access the Wikipedia API
+        params = {
+            'action': 'query',
+            'format': 'json',
+            'list': 'search',
+            'utf8': 1,
+            'srsearch': question,
+            'srlimit': 1,
+        }
+        response = requests.get("https://en.wikipedia.org/w/api.php", params=params).json()
+
+        #extract page ID of the first search result
+        pageid = response['query']['search'][0]['pageid']
+
+        #construct URL to fetch the extract of the page
+        params = {
+            'action': 'query',
+            'prop': 'extracts',
+            'format': 'json',
+            'exintro': True,
+            'explaintext': True,
+            'pageids': pageid,
+        }
+        response = requests.get("https://en.wikipedia.org/w/api.php", params=params).json()
+
+        #extract the page content
+        extract = response['query']['pages'][str(pageid)]['extract']
+
+        #check the length of the extract and respond accordingly
+        if len(extract) <= 2000:
+            await ctx.respond(extract)
+        else:
+            #if the content is too long, split it into chunks of 2000 characters and send each chunk as a separate message
+            for chunk in [extract[i:i+2000] for i in range(0, len(extract), 2000)]:
+                await ctx.respond(chunk)
+
     except Exception as e:
         await ctx.respond("Sorry, I can't process your request right now. Please try again later.")
         print(f"Error: {e}")
+
 
 
 #slash command for saying hello
