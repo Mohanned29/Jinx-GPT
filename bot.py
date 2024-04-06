@@ -5,10 +5,13 @@ from datetime import datetime
 import os
 import discord
 import random
+import openai
 
 #load Discord token from .env file
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
+OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
+
 
 #define intents
 intents = discord.Intents.default()
@@ -18,9 +21,22 @@ intents.message_content = True
 bot = commands.Bot(command_prefix='/', intents=intents)
 
 #inform users that /ask functionality will be available soon (chatgpt)
-@bot.slash_command(name="ask", description="This functionality will be available soon")
-async def ask(ctx):
-    await ctx.respond("This functionality will be available soon. Stay tuned!")
+@bot.slash_command(name="ask", description="Ask a question and get an answer from Jinx")
+async def ask(ctx, *, question: str):
+    try:
+        openai.api_key = OPENAI_API_KEY
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": "You are a helpful assistant."},
+                {"role": "user", "content": question},
+            ]
+        )
+        await ctx.respond(response.choices[0].message['content'])
+    except Exception as e:
+        await ctx.respond("Sorry, I can't process your request right now. Please try again later.")
+        print(f"Error: {e}")
+
 
 #slash command for saying hello
 @bot.slash_command(name="hello", description="Say hello to the bot")
