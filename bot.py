@@ -94,6 +94,16 @@ async def iq(ctx):
     await ctx.respond(f'The IQ of {user_name} is {random_number}')
 
 
+@bot.slash_command(name="garici", description="How much do you love Garici?")
+async def garici(ctx):
+    user_name = ctx.author.display_name
+    current_date = datetime.now().strftime('%Y-%m-%d')
+    seed = sum(ord(c) for c in current_date + user_name.lower())
+    random.seed(seed)
+    love_percentage = random.randint(0, 100)
+    await ctx.respond(f"{user_name} loves Garici {love_percentage}% ❤️")
+
+
 
 @bot.slash_command(name="activity", description="Find out what the bot is doing")
 async def activity(ctx):
