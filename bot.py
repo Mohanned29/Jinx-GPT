@@ -3,10 +3,18 @@ from dotenv import load_dotenv
 from random import choice
 from datetime import datetime
 from bs4 import BeautifulSoup
+import nltk
+from nltk.sentiment import SentimentIntensityAnalyzer
 import os
 import discord
 import random
 import requests
+
+
+nltk.download('vader_lexicon')
+# Initialize the sentiment intensity analyzer
+sia = SentimentIntensityAnalyzer()
+
 
 #load Discord token from .env file
 load_dotenv()
@@ -20,6 +28,22 @@ intents.message_content = True
 
 #initialize bot with intents
 bot = commands.Bot(command_prefix='/', intents=intents)
+
+
+@bot.slash_command(name='sentiment', help='Analyzes the sentiment of the provided text.')
+async def sentiment(ctx, *, text: str):
+    score = sia.polarity_scores(text)
+    compound_score = score['compound']
+
+    if compound_score >= 0.05:
+        response = "That's positive! 😊"
+    elif compound_score <= -0.05:
+        response = "That seems negative. 😢"
+    else:
+        response = "Looks pretty neutral to me. 🤔"
+
+    await ctx.send(response)
+
 
 #ask command alpha
 @bot.slash_command(name="ask", description="Ask a question and get an answer from Wikipedia")
