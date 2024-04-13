@@ -12,11 +12,11 @@ import requests
 
 
 nltk.download('vader_lexicon')
-# Initialize the sentiment intensity analyzer
+#initialize the sentiment intensity analyzer
 sia = SentimentIntensityAnalyzer()
 
 
-#load Discord token from .env file
+#load Discord token and Openai token from .env file
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
@@ -45,11 +45,11 @@ async def sentiment(ctx, *, text: str):
     await ctx.send(response)
 
 
-#ask command alpha
+#ask command alpha (checked)
 @bot.slash_command(name="ask", description="Ask a question and get an answer from Wikipedia")
 async def ask(ctx, *, question: str):
     try:
-        #construct the URL to access the Wikipedia API
+        #construct the URL to access the Wikipedia API (checked)
         params = {
             'action': 'query',
             'format': 'json',
@@ -60,10 +60,10 @@ async def ask(ctx, *, question: str):
         }
         response = requests.get("https://en.wikipedia.org/w/api.php", params=params).json()
 
-        #extract page ID of the first search result
+        #extract page ID of the first search result (checked)
         pageid = response['query']['search'][0]['pageid']
 
-        #construct URL to fetch the extract of the page
+        #construct URL to fetch the extract of the page (checked)
         params = {
             'action': 'query',
             'prop': 'extracts',
@@ -91,7 +91,7 @@ async def ask(ctx, *, question: str):
 
 
 
-#slash command for saying hello
+#slash command for saying hello (beta)
 @bot.slash_command(name="hello", description="Say hello to the bot")
 async def hello(ctx):
     await ctx.respond("Hello, hello! What mischief are we getting into today?")
@@ -101,7 +101,7 @@ async def hello(ctx):
 async def hru(ctx):
     await ctx.respond("Pfft, I'm doing just peachy! Who needs normal when you can have extraordinary, right?")
 
-#slash command for bye-bye
+#slash command for bye-bye (beta)
 @bot.slash_command(name="bye", description="Say goodbye to the bot")
 async def bye(ctx):
     await ctx.respond("Bye-bye, Catch you on the flip side!")
