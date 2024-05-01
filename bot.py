@@ -1,4 +1,5 @@
 from discord.ext import commands
+from datetime import datetime
 from dotenv import load_dotenv
 from random import choice
 from datetime import datetime
@@ -12,11 +13,11 @@ import requests
 
 
 nltk.download('vader_lexicon')
-#initialize the sentiment intensity analyzer
+# Initialize the sentiment intensity analyzer
 sia = SentimentIntensityAnalyzer()
 
 
-#load Discord token and Openai token from .env file
+#load Discord token from .env file
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
@@ -42,14 +43,14 @@ async def sentiment(ctx, *, text: str):
     else:
         response = "Looks pretty neutral to me. 🤔"
 
-    await ctx.send(response)
+    await ctx.respond(response)
 
-
-#ask command alpha (checked)
+    
+#ask command alpha
 @bot.slash_command(name="ask", description="Ask a question and get an answer from Wikipedia")
 async def ask(ctx, *, question: str):
     try:
-        #construct the URL to access the Wikipedia API (checked)
+        #construct the URL to access the Wikipedia API
         params = {
             'action': 'query',
             'format': 'json',
@@ -60,10 +61,10 @@ async def ask(ctx, *, question: str):
         }
         response = requests.get("https://en.wikipedia.org/w/api.php", params=params).json()
 
-        #extract page ID of the first search result (checked)
+        #extract page ID of the first search result
         pageid = response['query']['search'][0]['pageid']
 
-        #construct URL to fetch the extract of the page (checked)
+        #construct URL to fetch the extract of the page
         params = {
             'action': 'query',
             'prop': 'extracts',
@@ -91,17 +92,26 @@ async def ask(ctx, *, question: str):
 
 
 
-#slash command for saying hello (beta)
-@bot.slash_command(name="hello", description="Say hello to the bot")
+#slash command for saying hello (alpha and checked)
+@bot.slash_command(name="hello", description="Greet based on the time of day")
 async def hello(ctx):
-    await ctx.respond("Hello, hello! What mischief are we getting into today?")
+    current_hour = datetime.now().hour
+    if 5 <= current_hour < 12:
+        greeting = "Hellooo , sbah el khir 🌷"
+    elif 12 <= current_hour < 18:
+        greeting = "Good afternoooooooooon!"
+    elif 18 <= current_hour < 23:
+        greeting = "Good evening!"
+    else:
+        greeting = "Its too late ! roh tr9d 💤"
+    await ctx.respond(greeting)
 
 #slash command for hru
 @bot.slash_command(name="hru", description="Ask the bot how it's doing")
 async def hru(ctx):
     await ctx.respond("Pfft, I'm doing just peachy! Who needs normal when you can have extraordinary, right?")
 
-#slash command for bye-bye (beta)
+#slash command for bye-bye
 @bot.slash_command(name="bye", description="Say goodbye to the bot")
 async def bye(ctx):
     await ctx.respond("Bye-bye, Catch you on the flip side!")
