@@ -46,7 +46,7 @@ async def sentiment(ctx, *, text: str):
     await ctx.respond(response)
 
     
-#ask command alpha
+#ask command beta
 @bot.slash_command(name="ask", description="Ask a question and get an answer from Wikipedia")
 async def ask(ctx, *, question: str):
     try:
@@ -97,7 +97,7 @@ async def ask(ctx, *, question: str):
 async def hello(ctx):
     current_hour = datetime.now().hour
     if 5 <= current_hour < 12:
-        greeting = "Hellooo , sbah el khir 🌷"
+        greeting = "Hellooo , sbah el khir"
     elif 12 <= current_hour < 18:
         greeting = "Good afternoooooooooon!"
     elif 18 <= current_hour < 23:
